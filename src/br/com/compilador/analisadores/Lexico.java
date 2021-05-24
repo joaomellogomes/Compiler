@@ -165,7 +165,74 @@ public class Lexico {
 	}
 
 	private Token processaRelop() throws IOException {
-		return new Token(TokenType.RELOP, "RELOP STUB");
+		char c = getNextChar();
+
+		try {
+			String invalidRelopMessage = "Relop Inválido. Valores esperados: $lt|$gt|$ge|$le|$eq|$df";
+
+			switch (c) {
+			case 'l':
+				c = getNextChar();
+
+				if (c != 't' && c != 'e') {
+					resetLastChar();
+					ErrorHandler.getInstance()
+							.addCompilerError(
+									ErrorType.LEXICO, lexema.toString(), "Token `" + c + "` inesperado. Esperado `"
+											+ lexema.toString() + "t` ou `" + lexema.toString() + "e`.",
+									tk_lin, tk_col);
+					return null;
+				}
+				break;
+
+			case 'g':
+				c = getNextChar();
+
+				if (c != 't' && c != 'e') {
+					resetLastChar();
+					ErrorHandler.getInstance()
+							.addCompilerError(
+									ErrorType.LEXICO, lexema.toString(), "Token `" + c + "` inesperado. Esperado `"
+											+ lexema.toString() + "t` ou `" + lexema.toString() + "e`.",
+									tk_lin, tk_col);
+					return null;
+				}
+				break;
+
+			case 'e':
+				c = getNextChar();
+
+				if (c != 'q') {
+					resetLastChar();
+					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+							"Token `" + c + "` inesperado. Esperado `" + lexema.toString() + "q`.", tk_lin, tk_col);
+					return null;
+				}
+				break;
+
+			case 'd':
+				c = getNextChar();
+
+				if (c != 'f') {
+					resetLastChar();
+					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+							"Token `" + c + "` inesperado. Esperado `" + lexema.toString() + "f`.", tk_lin, tk_col);
+					return null;
+				}
+				break;
+
+			default:
+				resetLastChar();
+				ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(), invalidRelopMessage,
+						tk_lin, tk_col);
+				return null;
+			}
+		} catch (EOFException eofError) {
+			fileLoader.resetLastChar();
+			lexema.append(" ");
+		}
+
+		return new Token(TokenType.RELOP, lexema.toString(), tk_lin, tk_col);
 	}
 
 	private Token processaAssign() throws IOException {
