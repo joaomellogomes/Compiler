@@ -8,8 +8,8 @@ program file;
 		@
 		
 		nome <- "leonardo";
-		idade <- "21";
-		salario <- "2750.95"
+		idade <- 21;
+		salario <- 2750.95;
 		
 		if(idade $gt 18) then
 			begin				

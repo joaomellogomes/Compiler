@@ -76,17 +76,18 @@ public class Lexico {
 					token = processaAssign();
 					break;
 				default:
-					if (Character.isLetter(caracter) || caracter == '_') { 
-						token = processaID(); 
-					} else if (Character.isDigit(caracter)) { 
-						token = processaNum(); 
-					} else {
-						// Registra erro (Léxico)
-						ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, 
-                                lexema.toString(),
-                                "Caracter inválido",
-                                tk_lin, tk_col);
+					if (Character.isLetter(caracter) || caracter == '_') {
+						token = processaID();
+						break;
 					}
+					if (Character.isDigit(caracter) || caracter == '-') {
+						token = processaNum();
+						break;
+					}
+
+					// Registra erro (Léxico)
+					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+							"Caracter inválido", tk_lin, tk_col);
 				}
 			}
 
@@ -247,7 +248,108 @@ public class Lexico {
 	}
 
 	private Token processaNum() throws IOException {
-		return new Token(TokenType.NUM_INT, "NUM_INT STUB");
+		char c = getNextChar();
+
+		/**
+		 * NUM_FLOAT: 3.10E+10|4.8
+		 * NUM_INT: 3E+10|123|48
+		 */
+
+		try {
+			while (Character.isDigit(c)) {
+				c = getNextChar();
+			}
+
+			if (c == '.') {
+				c = getNextChar();
+
+				if (!Character.isDigit(c)) {
+					resetLastChar();
+					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+							"Número Float inválido. Esperado finalizar o número", tk_lin, tk_col);
+					return null;
+				}
+
+				do {
+					c = getNextChar();
+				}
+				while (Character.isDigit(c));
+
+				if (c != 'E' && c != ')' && c != ';') {
+					resetLastChar();
+					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+							"Esperado `;` ou `)`", tk_lin, tk_col);
+					return null;
+				}
+
+				if (c == 'E') {
+					c = getNextChar();
+
+					if (c != '+') {
+						resetLastChar();
+						ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+								"Número Float inválido. `+` é esperado após `" + lexema.toString() + '`', tk_lin, tk_col);
+						return null;
+					}
+
+					c = getNextChar();
+
+					if (!Character.isDigit(c)) {
+						resetLastChar();
+						ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+								"Número Float inválido. Esperado um número após `" + lexema.toString() + '`', tk_lin, tk_col);
+						return null;
+					}
+
+					while (Character.isDigit(c)) {
+						c = getNextChar();
+					}
+
+					resetLastChar();
+
+					if (c != ')' && c != ';') {
+						ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+								"Esperado `;` ou `)` após número float", tk_lin, tk_col);
+						return null;
+					}
+				}
+			}
+
+			if (c != 'E' && c != ')' && c != ';') {
+				resetLastChar();
+				ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+						"Esperado `;` ou `)` após número inteiro", tk_lin, tk_col);
+				return null;
+			}
+
+			if (c == 'E') {
+				c = getNextChar();
+
+				if (c != '+') {
+					resetLastChar();
+					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+							"Número Inteiro inválido. `+` é esperado após `" + lexema.toString() + '`', tk_lin, tk_col);
+					return null;
+				}
+
+				c = getNextChar();
+
+				while (Character.isDigit(c)) {
+					c = getNextChar();
+				}
+
+				if (c != ')' && c != ';') {
+					resetLastChar();
+					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+							"Esperado `;` ou `)` após número inteiro", tk_lin, tk_col);
+					return null;
+				}
+			}
+		} catch (EOFException eofError) {
+			lexema.append(" ");
+		}
+
+		return new Token(TokenType.NUM_INT, lexema.toString(), tk_lin, tk_col);
 	}
 
 	private Token processaID() throws IOException {
