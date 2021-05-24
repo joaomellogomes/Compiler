@@ -14,7 +14,7 @@ public class Compilador {
 	public static void main(String[] args) {
 
 		if(args.length < 1) {
-			System.out.println("Informa nome do arquivo a ser compilado");
+			System.out.println("Informe o nome do arquivo a ser compilado");
 			System.out.println("USAGE: java Compilador <nome do arquivo de entrada>");
 			return;
 		}
