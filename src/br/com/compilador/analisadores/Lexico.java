@@ -313,15 +313,17 @@ public class Lexico {
 						return null;
 					}
 				}
+				return new Token(TokenType.NUM_FLOAT, lexema.toString(), tk_lin, tk_col);
 			}
 
 			if (c != 'E' && c != ')' && c != ';') {
-				resetLastChar();
 				ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
 						"Esperado `;` ou `)` após número inteiro", tk_lin, tk_col);
 				return null;
 			}
 
+			resetLastChar();
+			
 			if (c == 'E') {
 				c = getNextChar();
 
@@ -345,11 +347,13 @@ public class Lexico {
 					return null;
 				}
 			}
+			
+			return new Token(TokenType.NUM_INT, lexema.toString(), tk_lin, tk_col);
 		} catch (EOFException eofError) {
 			lexema.append(" ");
 		}
 
-		return new Token(TokenType.NUM_INT, lexema.toString(), tk_lin, tk_col);
+		return null;
 	}
 
 	private Token processaID() throws IOException {
