@@ -275,79 +275,51 @@ public class Lexico {
 				}
 				while (Character.isDigit(c));
 
-				if (c != 'E' && c != ')' && c != ';') {
+				if (c != 'E') {
 					resetLastChar();
-					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
-							"Esperado `;` ou `)`", tk_lin, tk_col);
-					return null;
+					return new Token(TokenType.NUM_FLOAT, lexema.toString(), tk_lin, tk_col);
 				}
 
-				if (c == 'E') {
-					c = getNextChar();
-
-					if (c != '+') {
-						resetLastChar();
-						ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
-								"Número Float inválido. `+` é esperado após `" + lexema.toString() + '`', tk_lin, tk_col);
-						return null;
-					}
-
-					c = getNextChar();
-
-					if (!Character.isDigit(c)) {
-						resetLastChar();
-						ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
-								"Número Float inválido. Esperado um número após `" + lexema.toString() + '`', tk_lin, tk_col);
-						return null;
-					}
-
-					while (Character.isDigit(c)) {
-						c = getNextChar();
-					}
-
-					resetLastChar();
-
-					if (c != ')' && c != ';') {
-						ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
-								"Esperado `;` ou `)` após número float", tk_lin, tk_col);
-						return null;
-					}
-				}
-				return new Token(TokenType.NUM_FLOAT, lexema.toString(), tk_lin, tk_col);
-			}
-
-			if (c != 'E' && c != ')' && c != ';') {
-				ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
-						"Esperado `;` ou `)` após número inteiro", tk_lin, tk_col);
-				return null;
-			}
-
-			resetLastChar();
-			
-			if (c == 'E') {
 				c = getNextChar();
 
 				if (c != '+') {
 					resetLastChar();
 					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
-							"Número Inteiro inválido. `+` é esperado após `" + lexema.toString() + '`', tk_lin, tk_col);
+							"Número Float inválido. `+` é esperado após E", tk_lin, tk_col);
 					return null;
 				}
 
 				c = getNextChar();
 
-				while (Character.isDigit(c)) {
+				do {
 					c = getNextChar();
-				}
+				} while(Character.isDigit(c));
 
-				if (c != ')' && c != ';') {
-					resetLastChar();
-					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
-							"Esperado `;` ou `)` após número inteiro", tk_lin, tk_col);
-					return null;
-				}
+				resetLastChar();
+
+				return new Token(TokenType.NUM_FLOAT, lexema.toString(), tk_lin, tk_col);
+			}
+
+			if (c != 'E') {
+				resetLastChar();
+				return new Token(TokenType.NUM_INT, lexema.toString(), tk_lin, tk_col);
 			}
 			
+			c = getNextChar();
+
+			if (c != '+') {
+				resetLastChar();
+				ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+						"Número Inteiro inválido. `+` é esperado após `" + lexema.toString() + '`', tk_lin, tk_col);
+				return null;
+			}
+
+			do {
+				c = getNextChar();
+			} while(Character.isDigit(c));
+
+			resetLastChar();
+
 			return new Token(TokenType.NUM_INT, lexema.toString(), tk_lin, tk_col);
 		} catch (EOFException eofError) {
 			lexema.append(" ");
