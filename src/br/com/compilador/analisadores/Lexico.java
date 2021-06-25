@@ -169,20 +169,13 @@ public class Lexico {
 		char c = getNextChar();
 
 		try {
-			String invalidRelopMessage = "Relop Inválido. Valores esperados: $lt|$gt|$ge|$le|$eq|$df";
-
 			switch (c) {
 			case 'l':
 				c = getNextChar();
 
 				if (c != 't' && c != 'e') {
 					resetLastChar();
-					ErrorHandler.getInstance()
-							.addCompilerError(
-									ErrorType.LEXICO, lexema.toString(), "Token `" + c + "` inesperado. Esperado `"
-											+ lexema.toString() + "t` ou `" + lexema.toString() + "e`.",
-									tk_lin, tk_col);
-					return null;
+					return new Token(TokenType.RELOP, lexema.toString(), tk_lin, tk_col);
 				}
 				break;
 
@@ -191,12 +184,7 @@ public class Lexico {
 
 				if (c != 't' && c != 'e') {
 					resetLastChar();
-					ErrorHandler.getInstance()
-							.addCompilerError(
-									ErrorType.LEXICO, lexema.toString(), "Token `" + c + "` inesperado. Esperado `"
-											+ lexema.toString() + "t` ou `" + lexema.toString() + "e`.",
-									tk_lin, tk_col);
-					return null;
+					return new Token(TokenType.RELOP, lexema.toString(), tk_lin, tk_col);
 				}
 				break;
 
@@ -205,9 +193,7 @@ public class Lexico {
 
 				if (c != 'q') {
 					resetLastChar();
-					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
-							"Token `" + c + "` inesperado. Esperado `" + lexema.toString() + "q`.", tk_lin, tk_col);
-					return null;
+					return new Token(TokenType.RELOP, lexema.toString(), tk_lin, tk_col);
 				}
 				break;
 
@@ -216,17 +202,19 @@ public class Lexico {
 
 				if (c != 'f') {
 					resetLastChar();
-					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
-							"Token `" + c + "` inesperado. Esperado `" + lexema.toString() + "f`.", tk_lin, tk_col);
-					return null;
+					return new Token(TokenType.RELOP, lexema.toString(), tk_lin, tk_col);
 				}
 				break;
 
 			default:
+
+				if (Character.isWhitespace(c)) {
+					ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(),
+							"Relop Inválido. Valores esperados: $lt|$gt|$ge|$le|$eq|$df", tk_lin, tk_col);
+				}
+
 				resetLastChar();
-				ErrorHandler.getInstance().addCompilerError(ErrorType.LEXICO, lexema.toString(), invalidRelopMessage,
-						tk_lin, tk_col);
-				return null;
+				return new Token(TokenType.RELOP, lexema.toString(), tk_lin, tk_col);
 			}
 		} catch (EOFException eofError) {
 			fileLoader.resetLastChar();
@@ -251,8 +239,7 @@ public class Lexico {
 		char c = getNextChar();
 
 		/**
-		 * NUM_FLOAT: 3.10E+10|4.8
-		 * NUM_INT: 3E+10|123|48
+		 * NUM_FLOAT: 3.10E+10|4.8 NUM_INT: 3E+10|123|48
 		 */
 
 		try {
@@ -272,8 +259,7 @@ public class Lexico {
 
 				do {
 					c = getNextChar();
-				}
-				while (Character.isDigit(c));
+				} while (Character.isDigit(c));
 
 				if (c != 'E') {
 					resetLastChar();
@@ -293,7 +279,7 @@ public class Lexico {
 
 				do {
 					c = getNextChar();
-				} while(Character.isDigit(c));
+				} while (Character.isDigit(c));
 
 				resetLastChar();
 
@@ -304,7 +290,7 @@ public class Lexico {
 				resetLastChar();
 				return new Token(TokenType.NUM_INT, lexema.toString(), tk_lin, tk_col);
 			}
-			
+
 			c = getNextChar();
 
 			if (c != '+') {
@@ -316,7 +302,7 @@ public class Lexico {
 
 			do {
 				c = getNextChar();
-			} while(Character.isDigit(c));
+			} while (Character.isDigit(c));
 
 			resetLastChar();
 
